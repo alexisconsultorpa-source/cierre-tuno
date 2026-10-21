@@ -93,13 +93,30 @@
                         <i data-lucide="calendar" class="w-6 h-6"></i>
                     </div>
                     <div>
-                        <h2 class="font-bold text-gray-900">Fecha y hora</h2>
-                        <p class="text-xs text-gray-500">Registrada automáticamente por el dispositivo.</p>
+                        <h2 class="font-bold text-gray-900">Fecha y hora de registro</h2>
+                        <p class="text-xs text-gray-500">Marcas temporales del turno.</p>
                     </div>
                 </div>
-                <div class="bg-puma-lightGreen/50 border border-puma-green/20 rounded-xl p-3 text-puma-darkGreen font-semibold text-sm flex items-center justify-between">
-                    <span id="current-datetime">Martes, 20 De Octubre De 2026, 6:11:32 P. M.</span>
-                    <i data-lucide="clock" class="w-4 h-4 text-puma-green"></i>
+                
+                <div class="space-y-3">
+                    <div class="bg-puma-lightGreen/50 border border-puma-green/20 rounded-xl p-3 text-puma-darkGreen font-semibold text-xs flex items-center justify-between">
+                        <div>
+                            <span class="block text-[10px] text-gray-500 uppercase font-bold">Fecha del sistema</span>
+                            <span id="current-datetime">Martes, 20 De Octubre De 2026</span>
+                        </div>
+                        <i data-lucide="clock" class="w-4 h-4 text-puma-green"></i>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Hora de Inicio Turno</label>
+                            <input type="time" id="shift-start-time" value="06:00" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-puma-green">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Hora de Cierre Turno</label>
+                            <input type="time" id="shift-end-time" value="14:00" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-puma-green">
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -111,7 +128,7 @@
                     </div>
                     <div>
                         <h2 class="font-bold text-gray-900">Datos del Turno</h2>
-                        <p class="text-xs text-gray-500">Identifica al pistero responsable y al supervisor del turno.</p>
+                        <p class="text-xs text-gray-500">Identifica al pistero responsable y al supervisor.</p>
                     </div>
                 </div>
 
@@ -684,12 +701,12 @@
             <div><strong>Colaborador:</strong> <span id="p-pistero"></span></div>
             <div><strong>Supervisor:</strong> <span id="p-supervisor"></span></div>
             <div><strong>Turno:</strong> <span id="p-turno"></span></div>
-            <div><strong>Horario:</strong> <span id="p-turno-horario"></span></div>
+            <div><strong>Horario del turno:</strong> <span id="p-turno-horario"></span></div>
         </div>
 
         <!-- Pump Readings Table -->
         <div class="mb-4">
-            <h2 class="font-bold border-b pb-1 mb-2 text-sm uppercase">LECTURAS DE BOMBAS</h2>
+            <h2 class="font-bold border-b pb-1 mb-2 text-sm uppercase">LECTURAS DE BOMBAS (CON PRECIOS APLICADOS)</h2>
             <table class="w-full text-left text-[11px] border-collapse">
                 <thead>
                     <tr class="border-b">
@@ -698,6 +715,7 @@
                         <th class="py-1 text-right">Inicio</th>
                         <th class="py-1 text-right">Fin</th>
                         <th class="py-1 text-right">Litros</th>
+                        <th class="py-1 text-right">Precio/L</th>
                         <th class="py-1 text-right">Total</th>
                     </tr>
                 </thead>
@@ -852,7 +870,7 @@
 
         function updateDateTime() {
             const now = new Date();
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             const str = now.toLocaleDateString('es-ES', options);
             const formatted = str.charAt(0).toUpperCase() + str.slice(1);
             document.getElementById('current-datetime').textContent = formatted;
@@ -1549,9 +1567,13 @@
             document.getElementById('p-pistero').textContent = pisteroName || 'N/A';
             document.getElementById('p-supervisor').textContent = supervisorName || 'N/A';
             document.getElementById('p-turno').textContent = selectedShift;
-            document.getElementById('p-turno-horario').textContent = shiftTimes[selectedShift] || '';
+            
+            // Horario de inicio y finalización del turno personalizado
+            const startTimeVal = document.getElementById('shift-start-time').value || '06:00';
+            const endTimeVal = document.getElementById('shift-end-time').value || '14:00';
+            document.getElementById('p-turno-horario').textContent = `${startTimeVal} - ${endTimeVal} (${shiftTimes[selectedShift] || ''})`;
 
-            // Pump readings table
+            // Pump readings table with individual sale prices per pump
             const tbody = document.getElementById('p-pumps-body');
             tbody.innerHTML = '';
 
@@ -1588,6 +1610,7 @@
                             <td class="text-right">${p.r91.start || '-'}</td>
                             <td class="text-right">${p.r91.end || '-'}</td>
                             <td class="text-right">${rL.toFixed(2)} L</td>
+                            <td class="text-right">B/. ${p.prices.r91.toFixed(3)}</td>
                             <td class="text-right">B/. ${rM.toFixed(2)}</td>
                         </tr>
                         <tr class="border-b border-gray-200">
@@ -1595,6 +1618,7 @@
                             <td class="text-right">${p.s95.start || '-'}</td>
                             <td class="text-right">${p.s95.end || '-'}</td>
                             <td class="text-right">${sL.toFixed(2)} L</td>
+                            <td class="text-right">B/. ${p.prices.s95.toFixed(3)}</td>
                             <td class="text-right">B/. ${sM.toFixed(2)}</td>
                         </tr>
                         <tr class="border-b border-gray-300">
@@ -1602,6 +1626,7 @@
                             <td class="text-right">${p.dsl.start || '-'}</td>
                             <td class="text-right">${p.dsl.end || '-'}</td>
                             <td class="text-right">${dL.toFixed(2)} L</td>
+                            <td class="text-right">B/. ${p.prices.dsl.toFixed(3)}</td>
                             <td class="text-right">B/. ${dM.toFixed(2)}</td>
                         </tr>
                     `;
@@ -1660,7 +1685,7 @@
 
             document.getElementById('p-notes').textContent = document.getElementById('shift-notes').value || 'Sin observaciones.';
 
-            // Attach canvas images
+            // Attach canvas images and names
             const imgPistero = document.getElementById('p-img-pistero');
             if (padPistero.hasData) {
                 imgPistero.src = padPistero.canvas.toDataURL();
@@ -1677,8 +1702,8 @@
                 imgSupervisor.classList.add('hidden');
             }
 
-            document.getElementById('p-sign-pistero-name').textContent = pisteroName ? `Firma: ${pisteroName}` : 'Firma Colaborador';
-            document.getElementById('p-sign-supervisor-name').textContent = supervisorName ? `Firma: ${supervisorName}` : 'Firma Supervisor / Admin';
+            document.getElementById('p-sign-pistero-name').textContent = pisteroName ? `${pisteroName}` : 'Firma Colaborador';
+            document.getElementById('p-sign-supervisor-name').textContent = supervisorName ? `${supervisorName}` : 'Firma Supervisor / Admin';
 
             // Trigger Print Dialog
             window.print();
