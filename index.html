@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -104,18 +103,19 @@
                 </div>
             </div>
 
-            <!-- Datos del Colaborador -->
+            <!-- Datos del Colaborador y Supervisor -->
             <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 space-y-4">
                 <div class="flex items-center space-x-3">
                     <div class="bg-puma-lightGreen text-puma-green p-2.5 rounded-xl">
                         <i data-lucide="user-check" class="w-6 h-6"></i>
                     </div>
                     <div>
-                        <h2 class="font-bold text-gray-900">Datos del colaborador</h2>
-                        <p class="text-xs text-gray-500">Identifica al pistero responsable del turno.</p>
+                        <h2 class="font-bold text-gray-900">Datos del Turno</h2>
+                        <p class="text-xs text-gray-500">Identifica al pistero responsable y al supervisor del turno.</p>
                     </div>
                 </div>
 
+                <!-- Campo Nombre Pistero / Colaborador -->
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Nombre del Pistero / Colaborador</label>
                     <div class="relative">
@@ -126,23 +126,35 @@
                     </div>
                 </div>
 
+                <!-- Campo Nombre Supervisor -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Nombre del Supervisor / Administrador</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                            <i data-lucide="user-check" class="w-5 h-5"></i>
+                        </span>
+                        <input type="text" id="supervisor-name" oninput="validateStep1()" placeholder="Ej. Carlos Rodríguez" class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-puma-green text-gray-800 font-medium">
+                    </div>
+                </div>
+
+                <!-- Selección de Turno -->
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Turno</label>
                     <div class="grid grid-cols-3 gap-3">
                         <button type="button" onclick="selectShift('Mañana')" id="shift-manana" class="shift-btn border-2 border-gray-200 rounded-xl p-3 text-center hover:border-puma-green transition">
                             <i data-lucide="sun" class="w-5 h-5 mx-auto mb-1 text-amber-500"></i>
                             <div class="font-bold text-sm">Mañana</div>
-                            <div class="text-[10px] text-gray-400">6:00 a.m. – 2:00 p.m.</div>
+                            <input type="text" id="shift-time-manana" value="6:00 a.m. – 2:00 p.m." onclick="event.stopPropagation()" oninput="updateShiftTimes()" class="text-[10px] text-gray-500 text-center bg-transparent border-b border-transparent hover:border-gray-300 focus:border-puma-green focus:outline-none w-full mt-0.5">
                         </button>
                         <button type="button" onclick="selectShift('Tarde')" id="shift-tarde" class="shift-btn border-2 border-gray-200 rounded-xl p-3 text-center hover:border-puma-green transition">
                             <i data-lucide="cloud-sun" class="w-5 h-5 mx-auto mb-1 text-orange-500"></i>
                             <div class="font-bold text-sm">Tarde</div>
-                            <div class="text-[10px] text-gray-400">2:00 p.m. – 10:00 p.m.</div>
+                            <input type="text" id="shift-time-tarde" value="2:00 p.m. – 10:00 p.m." onclick="event.stopPropagation()" oninput="updateShiftTimes()" class="text-[10px] text-gray-500 text-center bg-transparent border-b border-transparent hover:border-gray-300 focus:border-puma-green focus:outline-none w-full mt-0.5">
                         </button>
                         <button type="button" onclick="selectShift('Noche')" id="shift-noche" class="shift-btn border-2 border-gray-200 rounded-xl p-3 text-center hover:border-puma-green transition">
                             <i data-lucide="moon" class="w-5 h-5 mx-auto mb-1 text-indigo-500"></i>
                             <div class="font-bold text-sm">Noche</div>
-                            <div class="text-[10px] text-gray-400">10:00 p.m. – 6:00 a.m.</div>
+                            <input type="text" id="shift-time-noche" value="10:00 p.m. – 6:00 a.m." onclick="event.stopPropagation()" oninput="updateShiftTimes()" class="text-[10px] text-gray-500 text-center bg-transparent border-b border-transparent hover:border-gray-300 focus:border-puma-green focus:outline-none w-full mt-0.5">
                         </button>
                     </div>
                 </div>
@@ -553,7 +565,7 @@
                         </div>
                         <div>
                             <h3 class="font-bold text-gray-900 text-sm">Firma del supervisor</h3>
-                            <p class="text-[11px] text-gray-500">Supervisor / Administrador</p>
+                            <p class="text-[11px] text-gray-500" id="signature-supervisor-label">Supervisor / Administrador</p>
                         </div>
                     </div>
 
@@ -670,7 +682,9 @@
         <!-- General Data -->
         <div class="grid grid-cols-2 gap-2 mb-4 border-b pb-3 text-xs">
             <div><strong>Colaborador:</strong> <span id="p-pistero"></span></div>
+            <div><strong>Supervisor:</strong> <span id="p-supervisor"></span></div>
             <div><strong>Turno:</strong> <span id="p-turno"></span></div>
+            <div><strong>Horario:</strong> <span id="p-turno-horario"></span></div>
         </div>
 
         <!-- Pump Readings Table -->
@@ -733,7 +747,7 @@
             <p id="p-notes" class="italic text-gray-700 mt-1"></p>
         </div>
 
-        <!-- Dual Signatures Area -->
+        <!-- Dual Signatures Area in PDF -->
         <div class="grid grid-cols-2 gap-8 pt-8">
             <div class="text-center">
                 <div class="h-20 border-b border-black mb-1 flex items-end justify-center">
@@ -746,8 +760,8 @@
                 <div class="h-20 border-b border-black mb-1 flex items-end justify-center">
                     <img id="p-img-supervisor" class="max-h-full max-w-full object-contain hidden" alt="Firma Supervisor">
                 </div>
-                <div class="font-bold">Firma Supervisor / Admin</div>
-                <div class="text-[10px] text-gray-600">Control & Cierre de Turno</div>
+                <div class="font-bold" id="p-sign-supervisor-name">Firma Supervisor / Admin</div>
+                <div class="text-[10px] text-gray-600">Supervisor de Turno</div>
             </div>
         </div>
     </div>
@@ -758,7 +772,13 @@
         // Global Application State
         let currentStep = 1;
         let pisteroName = '';
+        let supervisorName = '';
         let selectedShift = 'Mañana';
+        let shiftTimes = {
+            'Mañana': '6:00 a.m. – 2:00 p.m.',
+            'Tarde': '2:00 p.m. – 10:00 p.m.',
+            'Noche': '10:00 p.m. – 6:00 a.m.'
+        };
 
         let globalPrices = {
             r91: 1.279,
@@ -899,10 +919,21 @@
             });
         }
 
+        function updateShiftTimes() {
+            shiftTimes['Mañana'] = document.getElementById('shift-time-manana').value.trim();
+            shiftTimes['Tarde'] = document.getElementById('shift-time-tarde').value.trim();
+            shiftTimes['Noche'] = document.getElementById('shift-time-noche').value.trim();
+        }
+
         function validateStep1() {
             pisteroName = document.getElementById('pistero-name').value.trim();
-            const label = document.getElementById('signature-pistero-label');
-            if (label) label.textContent = pisteroName || 'Pistero responsable';
+            supervisorName = document.getElementById('supervisor-name').value.trim();
+
+            const pisteroLabel = document.getElementById('signature-pistero-label');
+            if (pisteroLabel) pisteroLabel.textContent = pisteroName ? `Colaborador: ${pisteroName}` : 'Pistero responsable';
+
+            const supervisorLabel = document.getElementById('signature-supervisor-label');
+            if (supervisorLabel) supervisorLabel.textContent = supervisorName ? `Supervisor: ${supervisorName}` : 'Supervisor / Administrador';
         }
 
         // STEP 2: PUMP LOGIC & PRICES
@@ -1505,16 +1536,20 @@
 
         // REPORT GENERATION & PRINT
         function generateAndPrintReport() {
+            validateStep1();
+
             if (!pisteroName) {
-                alert("Por favor ingrese el nombre del pistero en la pantalla de Inicio antes de imprimir.");
+                alert("Por favor ingrese el nombre del pistero/colaborador antes de imprimir.");
                 goToStep(1);
                 return;
             }
 
             // Populate Print Template
             document.getElementById('p-datetime').textContent = document.getElementById('current-datetime').textContent;
-            document.getElementById('p-pistero').textContent = pisteroName;
+            document.getElementById('p-pistero').textContent = pisteroName || 'N/A';
+            document.getElementById('p-supervisor').textContent = supervisorName || 'N/A';
             document.getElementById('p-turno').textContent = selectedShift;
+            document.getElementById('p-turno-horario').textContent = shiftTimes[selectedShift] || '';
 
             // Pump readings table
             const tbody = document.getElementById('p-pumps-body');
@@ -1642,7 +1677,8 @@
                 imgSupervisor.classList.add('hidden');
             }
 
-            document.getElementById('p-sign-pistero-name').textContent = pisteroName || 'Firma Colaborador';
+            document.getElementById('p-sign-pistero-name').textContent = pisteroName ? `Firma: ${pisteroName}` : 'Firma Colaborador';
+            document.getElementById('p-sign-supervisor-name').textContent = supervisorName ? `Firma: ${supervisorName}` : 'Firma Supervisor / Admin';
 
             // Trigger Print Dialog
             window.print();
@@ -1656,4 +1692,3 @@
     </script>
 </body>
 </html>
-```
