@@ -1,0 +1,1659 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ControlPista - Puma Energy | Cierre de Turno Digital</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        puma: {
+                            green: '#00875A',
+                            darkGreen: '#00583A',
+                            lightGreen: '#E6F4EA',
+                            red: '#E52320',
+                            yellow: '#FFC72C',
+                            dark: '#111827'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .canvas-container { touch-action: none; }
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white; color: black; }
+        }
+        .print-only { display: none; }
+    </style>
+</head>
+<body class="min-h-screen pb-24 text-gray-800">
+
+    <!-- Top Header -->
+    <header class="bg-puma-green text-white shadow-md sticky top-0 z-40 no-print">
+        <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white p-1.5 rounded-full shadow-inner flex items-center justify-center">
+                    <div class="w-6 h-6 bg-puma-red rounded-full flex items-center justify-center text-white font-bold text-xs">P</div>
+                </div>
+                <div>
+                    <div class="text-xs font-semibold uppercase tracking-wider text-green-200">Puma Energy</div>
+                    <h1 class="text-lg font-bold leading-tight">ControlPista</h1>
+                    <p class="text-xs opacity-90">Cierre de Turno Digital</p>
+                </div>
+            </div>
+            <button onclick="resetShiftData()" class="p-2 bg-white/10 hover:bg-white/20 rounded-lg text-xs flex items-center space-x-1 transition">
+                <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                <span class="hidden sm:inline">Reiniciar</span>
+            </button>
+        </div>
+        <!-- Wizard Navigation -->
+        <div class="bg-puma-darkGreen text-white/80 border-t border-white/10">
+            <div class="max-w-3xl mx-auto px-4 py-2 flex justify-between text-xs font-medium">
+                <button onclick="goToStep(1)" id="step-btn-1" class="flex-1 text-center py-1 rounded-md transition flex items-center justify-center space-x-1 text-white font-bold bg-white/10">
+                    <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-xs">1</span>
+                    <span>Inicio</span>
+                </button>
+                <button onclick="goToStep(2)" id="step-btn-2" class="flex-1 text-center py-1 rounded-md transition flex items-center justify-center space-x-1">
+                    <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-xs">2</span>
+                    <span>Bombas</span>
+                </button>
+                <button onclick="goToStep(3)" id="step-btn-3" class="flex-1 text-center py-1 rounded-md transition flex items-center justify-center space-x-1">
+                    <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-xs">3</span>
+                    <span>Pagos</span>
+                </button>
+                <button onclick="goToStep(4)" id="step-btn-4" class="flex-1 text-center py-1 rounded-md transition flex items-center justify-center space-x-1">
+                    <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-xs">4</span>
+                    <span>Cuadre</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- App Main Container -->
+    <main class="max-w-3xl mx-auto px-4 pt-4 no-print">
+
+        <!-- STEP 1: INICIO -->
+        <section id="step-1" class="space-y-4">
+            <!-- Fecha y Hora -->
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+                <div class="flex items-center space-x-3 mb-3">
+                    <div class="bg-puma-lightGreen text-puma-green p-2.5 rounded-xl">
+                        <i data-lucide="calendar" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-bold text-gray-900">Fecha y hora</h2>
+                        <p class="text-xs text-gray-500">Registrada automáticamente por el dispositivo.</p>
+                    </div>
+                </div>
+                <div class="bg-puma-lightGreen/50 border border-puma-green/20 rounded-xl p-3 text-puma-darkGreen font-semibold text-sm flex items-center justify-between">
+                    <span id="current-datetime">Martes, 20 De Octubre De 2026, 6:11:32 P. M.</span>
+                    <i data-lucide="clock" class="w-4 h-4 text-puma-green"></i>
+                </div>
+            </div>
+
+            <!-- Datos del Colaborador -->
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 space-y-4">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-puma-lightGreen text-puma-green p-2.5 rounded-xl">
+                        <i data-lucide="user-check" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-bold text-gray-900">Datos del colaborador</h2>
+                        <p class="text-xs text-gray-500">Identifica al pistero responsable del turno.</p>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Nombre del Pistero / Colaborador</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                            <i data-lucide="user" class="w-5 h-5"></i>
+                        </span>
+                        <input type="text" id="pistero-name" oninput="validateStep1()" placeholder="Ej. Alexis León" class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-puma-green text-gray-800 font-medium">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Turno</label>
+                    <div class="grid grid-cols-3 gap-3">
+                        <button type="button" onclick="selectShift('Mañana')" id="shift-manana" class="shift-btn border-2 border-gray-200 rounded-xl p-3 text-center hover:border-puma-green transition">
+                            <i data-lucide="sun" class="w-5 h-5 mx-auto mb-1 text-amber-500"></i>
+                            <div class="font-bold text-sm">Mañana</div>
+                            <div class="text-[10px] text-gray-400">6:00 a.m. – 2:00 p.m.</div>
+                        </button>
+                        <button type="button" onclick="selectShift('Tarde')" id="shift-tarde" class="shift-btn border-2 border-gray-200 rounded-xl p-3 text-center hover:border-puma-green transition">
+                            <i data-lucide="cloud-sun" class="w-5 h-5 mx-auto mb-1 text-orange-500"></i>
+                            <div class="font-bold text-sm">Tarde</div>
+                            <div class="text-[10px] text-gray-400">2:00 p.m. – 10:00 p.m.</div>
+                        </button>
+                        <button type="button" onclick="selectShift('Noche')" id="shift-noche" class="shift-btn border-2 border-gray-200 rounded-xl p-3 text-center hover:border-puma-green transition">
+                            <i data-lucide="moon" class="w-5 h-5 mx-auto mb-1 text-indigo-500"></i>
+                            <div class="font-bold text-sm">Noche</div>
+                            <div class="text-[10px] text-gray-400">10:00 p.m. – 6:00 a.m.</div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 2: BOMBAS & PRECIOS -->
+        <section id="step-2" class="hidden space-y-4">
+            <!-- Global & Individual Price Config -->
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-puma-lightGreen text-puma-green p-2.5 rounded-xl">
+                            <i data-lucide="tag" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-bold text-gray-900">Precio por litro (Base / Global)</h2>
+                            <p class="text-xs text-gray-500">Se aplica por defecto a todas las bombas.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2 sm:gap-3">
+                    <div class="bg-amber-50 border border-amber-200 rounded-xl p-2.5">
+                        <span class="block text-xs font-bold text-amber-800 mb-1">Regular 91</span>
+                        <div class="relative">
+                            <span class="absolute left-2 top-2 text-xs font-bold text-amber-800">B/.</span>
+                            <input type="number" step="0.001" id="global-r91" value="1.279" onchange="updateGlobalPrices()" class="w-full pl-8 pr-1 py-1.5 text-sm font-bold bg-white border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-right">
+                        </div>
+                    </div>
+                    <div class="bg-red-50 border border-red-200 rounded-xl p-2.5">
+                        <span class="block text-xs font-bold text-red-800 mb-1">Súper 95</span>
+                        <div class="relative">
+                            <span class="absolute left-2 top-2 text-xs font-bold text-red-800">B/.</span>
+                            <input type="number" step="0.001" id="global-s95" value="1.421" onchange="updateGlobalPrices()" class="w-full pl-8 pr-1 py-1.5 text-sm font-bold bg-white border border-red-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-right">
+                        </div>
+                    </div>
+                    <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-2.5">
+                        <span class="block text-xs font-bold text-emerald-800 mb-1">Diesel</span>
+                        <div class="relative">
+                            <span class="absolute left-2 top-2 text-xs font-bold text-emerald-800">B/.</span>
+                            <input type="number" step="0.001" id="global-dsl" value="1.516" onchange="updateGlobalPrices()" class="w-full pl-8 pr-1 py-1.5 text-sm font-bold bg-white border border-emerald-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-right">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pump Selector Grid -->
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-puma-lightGreen text-puma-green p-2.5 rounded-xl">
+                            <i data-lucide="fuel" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-bold text-gray-900">Seleccione una bomba</h2>
+                            <p class="text-xs text-gray-500" id="pumps-progress">0 de 12 bombas completas</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-6 sm:grid-cols-6 gap-2 my-3" id="pump-grid">
+                    <!-- JS generated pump buttons -->
+                </div>
+
+                <div class="flex items-center justify-around text-[11px] text-gray-500 pt-2 border-t border-gray-100">
+                    <span class="flex items-center"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 mr-1.5"></span> Completa</span>
+                    <span class="flex items-center"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 mr-1.5"></span> Parcial</span>
+                    <span class="flex items-center"><span class="w-2.5 h-2.5 rounded-full bg-gray-300 mr-1.5"></span> Incompleta</span>
+                </div>
+            </div>
+
+            <!-- Active Pump Detail Card -->
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 space-y-4" id="pump-detail-card">
+                <div class="flex items-center justify-between border-b pb-3 border-gray-100">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-puma-dark text-white font-bold flex items-center justify-center text-lg" id="active-pump-num">
+                            1
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-900 text-base" id="active-pump-title">Bomba 1</h3>
+                            <p class="text-xs text-gray-500" id="active-pump-sub">0.00 L · B/. 0.00</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <!-- Custom price toggle for this pump -->
+                        <button type="button" onclick="togglePumpPriceOverride()" id="override-price-btn" class="px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 text-gray-700 flex items-center space-x-1">
+                            <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
+                            <span id="override-price-label">Precio Especial</span>
+                        </button>
+                        <button onclick="navigatePump(-1)" class="p-2 bg-gray-100 hover:bg-gray-200 rounded-xl"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+                        <button onclick="navigatePump(1)" class="p-2 bg-gray-100 hover:bg-gray-200 rounded-xl"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+                    </div>
+                </div>
+
+                <!-- Custom price panel (hidden by default) -->
+                <div id="pump-custom-prices" class="hidden p-3 bg-amber-50/60 border border-amber-200 rounded-xl space-y-2">
+                    <div class="flex justify-between items-center text-xs font-bold text-amber-900">
+                        <span>Precios Especiales para Bomba <span id="custom-pump-id">1</span> (Autoservicio / Especial)</span>
+                        <button onclick="togglePumpPriceOverride()" class="text-amber-700 underline text-[11px]">Usar global</button>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <div>
+                            <label class="text-[10px] font-semibold text-amber-800">R91 (B/.)</label>
+                            <input type="number" step="0.001" id="custom-r91" oninput="updatePumpCustomPrices()" class="w-full text-xs font-bold p-1.5 bg-white border border-amber-300 rounded text-right">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-semibold text-amber-800">S95 (B/.)</label>
+                            <input type="number" step="0.001" id="custom-s95" oninput="updatePumpCustomPrices()" class="w-full text-xs font-bold p-1.5 bg-white border border-amber-300 rounded text-right">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-semibold text-amber-800">Diesel (B/.)</label>
+                            <input type="number" step="0.001" id="custom-dsl" oninput="updatePumpCustomPrices()" class="w-full text-xs font-bold p-1.5 bg-white border border-amber-300 rounded text-right">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hoses Reading Inputs -->
+                <!-- Regular 91 Hose -->
+                <div class="border-2 border-amber-400/80 bg-amber-50/20 rounded-xl p-3.5 space-y-2">
+                    <div class="flex justify-between items-center text-xs font-bold text-amber-900">
+                        <span class="flex items-center"><i data-lucide="fuel" class="w-4 h-4 mr-1 text-amber-600"></i> Regular 91</span>
+                        <span class="text-amber-700 text-[11px]" id="r91-hose-price">B/. 1.279 / L</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-500 uppercase">Inicio</label>
+                            <input type="number" id="h-r91-start" oninput="calculateActivePump()" placeholder="0.00" class="w-full p-2 text-sm font-semibold bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-400 outline-none">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-500 uppercase">Fin</label>
+                            <input type="number" id="h-r91-end" oninput="calculateActivePump()" placeholder="0.00" class="w-full p-2 text-sm font-semibold bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-400 outline-none">
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center text-xs pt-1 border-t border-amber-100 font-semibold">
+                        <span class="text-gray-500">Litros: <strong id="h-r91-liters" class="text-gray-800">0.00 L</strong></span>
+                        <span class="text-gray-500">Total: <strong id="h-r91-total" class="text-amber-900 font-bold">B/. 0.00</strong></span>
+                    </div>
+                </div>
+
+                <!-- Super 95 Hose -->
+                <div class="border-2 border-red-400/80 bg-red-50/20 rounded-xl p-3.5 space-y-2">
+                    <div class="flex justify-between items-center text-xs font-bold text-red-900">
+                        <span class="flex items-center"><i data-lucide="fuel" class="w-4 h-4 mr-1 text-red-600"></i> Súper 95</span>
+                        <span class="text-red-700 text-[11px]" id="s95-hose-price">B/. 1.421 / L</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-500 uppercase">Inicio</label>
+                            <input type="number" id="h-s95-start" oninput="calculateActivePump()" placeholder="0.00" class="w-full p-2 text-sm font-semibold bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-400 outline-none">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-500 uppercase">Fin</label>
+                            <input type="number" id="h-s95-end" oninput="calculateActivePump()" placeholder="0.00" class="w-full p-2 text-sm font-semibold bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-400 outline-none">
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center text-xs pt-1 border-t border-red-100 font-semibold">
+                        <span class="text-gray-500">Litros: <strong id="h-s95-liters" class="text-gray-800">0.00 L</strong></span>
+                        <span class="text-gray-500">Total: <strong id="h-s95-total" class="text-red-900 font-bold">B/. 0.00</strong></span>
+                    </div>
+                </div>
+
+                <!-- Diesel Hose -->
+                <div class="border-2 border-emerald-400/80 bg-emerald-50/20 rounded-xl p-3.5 space-y-2">
+                    <div class="flex justify-between items-center text-xs font-bold text-emerald-900">
+                        <span class="flex items-center"><i data-lucide="fuel" class="w-4 h-4 mr-1 text-emerald-600"></i> Diesel</span>
+                        <span class="text-emerald-700 text-[11px]" id="dsl-hose-price">B/. 1.516 / L</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-500 uppercase">Inicio</label>
+                            <input type="number" id="h-dsl-start" oninput="calculateActivePump()" placeholder="0.00" class="w-full p-2 text-sm font-semibold bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-400 outline-none">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-500 uppercase">Fin</label>
+                            <input type="number" id="h-dsl-end" oninput="calculateActivePump()" placeholder="0.00" class="w-full p-2 text-sm font-semibold bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-400 outline-none">
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center text-xs pt-1 border-t border-emerald-100 font-semibold">
+                        <span class="text-gray-500">Litros: <strong id="h-dsl-liters" class="text-gray-800">0.00 L</strong></span>
+                        <span class="text-gray-500">Total: <strong id="h-dsl-total" class="text-emerald-900 font-bold">B/. 0.00</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resumen Ventas Bombas -->
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+                <h3 class="font-bold text-gray-900 mb-3 text-sm flex items-center">
+                    <i data-lucide="bar-chart-3" class="w-4 h-4 mr-2 text-puma-green"></i> Resumen de Ventas Totales
+                </h3>
+                <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                    <div class="bg-amber-50 p-2 rounded-xl border border-amber-100">
+                        <div class="text-amber-800 font-bold">R91</div>
+                        <div id="summary-r91-liters" class="font-bold text-gray-700">0.00 L</div>
+                        <div id="summary-r91-money" class="text-[11px] text-gray-500">B/. 0.00</div>
+                    </div>
+                    <div class="bg-red-50 p-2 rounded-xl border border-red-100">
+                        <div class="text-red-800 font-bold">S95</div>
+                        <div id="summary-s95-liters" class="font-bold text-gray-700">0.00 L</div>
+                        <div id="summary-s95-money" class="text-[11px] text-gray-500">B/. 0.00</div>
+                    </div>
+                    <div class="bg-emerald-50 p-2 rounded-xl border border-emerald-100">
+                        <div class="text-emerald-800 font-bold">Diesel</div>
+                        <div id="summary-dsl-liters" class="font-bold text-gray-700">0.00 L</div>
+                        <div id="summary-dsl-money" class="text-[11px] text-gray-500">B/. 0.00</div>
+                    </div>
+                </div>
+                <div class="mt-3 p-3 bg-puma-green text-white rounded-xl flex justify-between items-center">
+                    <div>
+                        <div class="text-[10px] uppercase font-bold tracking-wider opacity-80">Venta Total Combustible</div>
+                        <div id="summary-total-liters" class="text-xs">0.00 L acumulados</div>
+                    </div>
+                    <div id="summary-total-money" class="text-xl font-black">B/. 0.00</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 3: PAGOS & BUZÓN -->
+        <section id="step-3" class="hidden space-y-4">
+
+            <!-- Depósitos en Buzón -->
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 space-y-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-puma-lightGreen text-puma-green p-2.5 rounded-xl">
+                            <i data-lucide="archive" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-bold text-gray-900">Depósitos en buzón</h2>
+                            <p class="text-xs text-gray-500">Registre cada sobre de efectivo depositado.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="envelopes-list" class="space-y-2">
+                    <!-- Envelope items generated dynamic JS -->
+                </div>
+
+                <button onclick="addEnvelope()" class="w-full py-2.5 border-2 border-dashed border-puma-green text-puma-green rounded-xl font-bold text-xs hover:bg-puma-lightGreen/50 transition flex items-center justify-center space-x-1">
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                    <span>Agregar sobre</span>
+                </button>
+
+                <div class="bg-gray-50 p-3 rounded-xl flex justify-between items-center text-xs font-bold">
+                    <span class="text-gray-600">Total en buzón (<span id="envelopes-count">0</span> sobres)</span>
+                    <span id="envelopes-total" class="text-puma-darkGreen font-extrabold text-sm">B/. 0.00</span>
+                </div>
+            </div>
+
+            <!-- Pagos Electrónicos y Otros -->
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 space-y-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-puma-lightGreen text-puma-green p-2.5 rounded-xl">
+                            <i data-lucide="credit-card" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-bold text-gray-900">Pagos electrónicos y otros</h2>
+                            <p class="text-xs text-gray-500">Personalice los campos según su estación.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Custom payment dynamic fields list -->
+                <div id="payments-list" class="space-y-2.5">
+                    <!-- Dynamic payment rows -->
+                </div>
+
+                <!-- Add new payment field creator button -->
+                <div class="pt-2">
+                    <button onclick="addNewPaymentFieldPrompt()" class="w-full py-2.5 border border-gray-300 text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-xl font-bold text-xs transition flex items-center justify-center space-x-1">
+                        <i data-lucide="plus" class="w-4 h-4 text-puma-green"></i>
+                        <span>+ Crear nuevo método de pago</span>
+                    </button>
+                </div>
+
+                <div class="bg-gray-100 p-3 rounded-xl flex justify-between items-center text-xs font-bold">
+                    <span class="text-gray-700">Total pagos electrónicos y otros</span>
+                    <span id="payments-total" class="text-gray-900 font-extrabold text-sm">B/. 0.00</span>
+                </div>
+            </div>
+
+            <!-- Total Declarado Alert Card -->
+            <div class="bg-puma-dark text-white p-4 rounded-2xl flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="p-2 bg-white/10 rounded-xl">
+                        <i data-lucide="wallet" class="w-6 h-6 text-puma-yellow"></i>
+                    </div>
+                    <div>
+                        <div class="text-xs uppercase tracking-wider text-gray-300 font-semibold">TOTAL DECLARADO</div>
+                        <div class="text-[11px] text-gray-400">Venta esperada: <span id="expected-sale-badge" class="font-bold text-white">B/. 0.00</span></div>
+                    </div>
+                </div>
+                <div id="declared-total" class="text-2xl font-black text-white">B/. 0.00</div>
+            </div>
+        </section>
+
+        <!-- STEP 4: CUADRE & FIRMAS -->
+        <section id="step-4" class="hidden space-y-4">
+
+            <!-- Cuadre Banner status -->
+            <div id="cuadre-status-card" class="bg-puma-green text-white p-5 rounded-2xl shadow-sm">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <h2 id="cuadre-title" class="text-xl font-black">Cuadre Perfecto</h2>
+                        <p id="cuadre-sub" class="text-xs text-white/90 mt-0.5">El total declarado coincide con la venta registrada.</p>
+                    </div>
+                    <div id="cuadre-badge-icon" class="p-2 bg-white/20 rounded-full">
+                        <i data-lucide="check-circle-2" class="w-8 h-8"></i>
+                    </div>
+                </div>
+                <div id="cuadre-diff-display" class="text-3xl font-black mt-3">B/. 0.00</div>
+            </div>
+
+            <!-- Reconciliation Summary Table -->
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 space-y-3">
+                <div class="flex items-center space-x-3 border-b pb-3 border-gray-100">
+                    <div class="bg-puma-lightGreen text-puma-green p-2.5 rounded-xl">
+                        <i data-lucide="scale" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-bold text-gray-900">Conciliación</h2>
+                        <p class="text-xs text-gray-500">Venta de combustible frente a lo declarado.</p>
+                    </div>
+                </div>
+
+                <div class="space-y-2 text-xs divide-y divide-gray-100">
+                    <div class="flex justify-between pt-1">
+                        <span class="text-gray-500 flex items-center"><span class="w-2 h-2 rounded-full bg-amber-500 mr-2"></span>Regular 91 · <span id="reconcil-r91-liters">0 L</span></span>
+                        <span id="reconcil-r91-money" class="font-semibold">B/. 0.00</span>
+                    </div>
+                    <div class="flex justify-between pt-2">
+                        <span class="text-gray-500 flex items-center"><span class="w-2 h-2 rounded-full bg-red-500 mr-2"></span>Súper 95 · <span id="reconcil-s95-liters">0 L</span></span>
+                        <span id="reconcil-s95-money" class="font-semibold">B/. 0.00</span>
+                    </div>
+                    <div class="flex justify-between pt-2">
+                        <span class="text-gray-500 flex items-center"><span class="w-2 h-2 rounded-full bg-emerald-500 mr-2"></span>Diesel · <span id="reconcil-dsl-liters">0 L</span></span>
+                        <span id="reconcil-dsl-money" class="font-semibold">B/. 0.00</span>
+                    </div>
+                    <div class="flex justify-between pt-2 font-bold text-gray-900">
+                        <span>Venta total de combustible</span>
+                        <span id="reconcil-total-fuel" class="text-puma-green">B/. 0.00</span>
+                    </div>
+                    <div class="flex justify-between pt-2 text-gray-600">
+                        <span>Depósitos en buzón</span>
+                        <span id="reconcil-envelopes">B/. 0.00</span>
+                    </div>
+                    <div class="flex justify-between pt-2 text-gray-600">
+                        <span>Pagos electrónicos y otros</span>
+                        <span id="reconcil-payments">B/. 0.00</span>
+                    </div>
+                    <div class="flex justify-between pt-2 font-bold text-gray-900">
+                        <span>Total declarado</span>
+                        <span id="reconcil-declared">B/. 0.00</span>
+                    </div>
+                    <div class="flex justify-between pt-2 font-black text-sm">
+                        <span>Diferencia</span>
+                        <span id="reconcil-diff" class="text-puma-green">B/. 0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shift Observations -->
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 space-y-2">
+                <label class="block font-bold text-gray-900 text-xs uppercase tracking-wider flex items-center space-x-2">
+                    <i data-lucide="file-text" class="w-4 h-4 text-puma-green"></i>
+                    <span>Observaciones de Turno</span>
+                </label>
+                <textarea id="shift-notes" rows="2" placeholder="Ej. Se reportó fallo en manguera de Diesel bomba 7." class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-puma-green"></textarea>
+            </div>
+
+            <!-- FIRMAS DIGITALES DUALES -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                
+                <!-- 1. Firma Colaborador / Pistero -->
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 space-y-3">
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-puma-lightGreen text-puma-green p-2 rounded-xl">
+                            <i data-lucide="pen-tool" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-900 text-sm">Firma del colaborador</h3>
+                            <p class="text-[11px] text-gray-500" id="signature-pistero-label">Pistero responsable</p>
+                        </div>
+                    </div>
+
+                    <div class="border-2 border-dashed border-gray-200 rounded-xl bg-gray-50 relative canvas-container">
+                        <canvas id="canvas-pistero" class="w-full h-36 rounded-xl cursor-crosshair"></canvas>
+                        <span class="absolute inset-0 flex items-center justify-center text-xs text-gray-400 pointer-events-none" id="hint-pistero">
+                            Firme aquí con el dedo o lápiz
+                        </span>
+                    </div>
+
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="text-gray-400 text-[11px]" id="status-pistero">Firma pendiente</span>
+                        <button onclick="clearSignature('pistero')" class="text-puma-red font-semibold hover:underline flex items-center space-x-1">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            <span>Borrar firma</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 2. Firma Supervisor / Administrador -->
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 space-y-3">
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-puma-lightGreen text-puma-green p-2 rounded-xl">
+                            <i data-lucide="user-check" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-900 text-sm">Firma del supervisor</h3>
+                            <p class="text-[11px] text-gray-500">Supervisor / Administrador</p>
+                        </div>
+                    </div>
+
+                    <div class="border-2 border-dashed border-gray-200 rounded-xl bg-gray-50 relative canvas-container">
+                        <canvas id="canvas-supervisor" class="w-full h-36 rounded-xl cursor-crosshair"></canvas>
+                        <span class="absolute inset-0 flex items-center justify-center text-xs text-gray-400 pointer-events-none" id="hint-supervisor">
+                            Firme aquí con el dedo o lápiz
+                        </span>
+                    </div>
+
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="text-gray-400 text-[11px]" id="status-supervisor">Firma pendiente</span>
+                        <button onclick="clearSignature('supervisor')" class="text-puma-red font-semibold hover:underline flex items-center space-x-1">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            <span>Borrar firma</span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="pt-2 space-y-2">
+                <button onclick="generateAndPrintReport()" class="w-full py-4 bg-puma-green hover:bg-puma-darkGreen text-white font-bold rounded-2xl shadow-lg shadow-puma-green/20 transition flex items-center justify-center space-x-2 text-base">
+                    <i data-lucide="printer" class="w-5 h-5"></i>
+                    <span>Guardar / Imprimir reporte</span>
+                </button>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Bottom Navigation Footer Bar (Sticky Mobile Nav) -->
+    <footer class="fixed bottom-0 inset-x-0 bg-white border-t border-gray-200 px-4 py-3 z-30 no-print">
+        <div class="max-w-3xl mx-auto flex items-center justify-between">
+            <button onclick="prevStep()" id="prev-step-btn" class="p-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl disabled:opacity-30 disabled:cursor-not-allowed">
+                <i data-lucide="arrow-left" class="w-5 h-5"></i>
+            </button>
+
+            <div class="text-center">
+                <div class="text-[10px] uppercase font-bold text-gray-400 tracking-wider">VENTA TOTAL</div>
+                <div id="footer-total-money" class="text-base font-black text-gray-900">B/. 0.00</div>
+            </div>
+
+            <button onclick="nextStep()" id="next-step-btn" class="px-5 py-3 bg-puma-green text-white font-bold rounded-xl hover:bg-puma-darkGreen transition flex items-center space-x-2 text-sm shadow-md">
+                <span id="next-step-text">Ir a Bombas</span>
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </footer>
+
+    <!-- CALCULATOR POPUP MODAL INTEGRATED -->
+    <div id="calc-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-xs rounded-3xl p-5 shadow-2xl space-y-4 border border-gray-100">
+            <div class="flex justify-between items-center border-b pb-2">
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="calculator" class="w-5 h-5 text-puma-green"></i>
+                    <h3 class="font-bold text-gray-900 text-sm">Calculadora de Comprobantes</h3>
+                </div>
+                <button onclick="closeCalculator()" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+
+            <div class="text-xs text-gray-500 font-medium truncate" id="calc-field-title">Suma para campo</div>
+
+            <!-- Calc Screen -->
+            <div class="bg-gray-900 rounded-2xl p-3 text-right">
+                <div id="calc-expression" class="text-xs text-gray-400 h-4 overflow-hidden"></div>
+                <div id="calc-display" class="text-2xl font-mono font-bold text-emerald-400 truncate">0</div>
+            </div>
+
+            <!-- Calc Keypad -->
+            <div class="grid grid-cols-4 gap-2">
+                <button onclick="calcKey('C')" class="p-3 bg-red-100 text-red-600 font-bold rounded-xl text-sm hover:bg-red-200">C</button>
+                <button onclick="calcKey('/')" class="p-3 bg-gray-100 text-puma-green font-bold rounded-xl text-sm hover:bg-gray-200">÷</button>
+                <button onclick="calcKey('*')" class="p-3 bg-gray-100 text-puma-green font-bold rounded-xl text-sm hover:bg-gray-200">×</button>
+                <button onclick="calcKey('BACK')" class="p-3 bg-gray-100 text-gray-700 font-bold rounded-xl text-sm hover:bg-gray-200"><i data-lucide="delete" class="w-4 h-4 mx-auto"></i></button>
+
+                <button onclick="calcKey('7')" class="p-3 bg-gray-50 text-gray-800 font-bold rounded-xl text-base hover:bg-gray-100">7</button>
+                <button onclick="calcKey('8')" class="p-3 bg-gray-50 text-gray-800 font-bold rounded-xl text-base hover:bg-gray-100">8</button>
+                <button onclick="calcKey('9')" class="p-3 bg-gray-50 text-gray-800 font-bold rounded-xl text-base hover:bg-gray-100">9</button>
+                <button onclick="calcKey('-')" class="p-3 bg-gray-100 text-puma-green font-bold rounded-xl text-sm hover:bg-gray-200">-</button>
+
+                <button onclick="calcKey('4')" class="p-3 bg-gray-50 text-gray-800 font-bold rounded-xl text-base hover:bg-gray-100">4</button>
+                <button onclick="calcKey('5')" class="p-3 bg-gray-50 text-gray-800 font-bold rounded-xl text-base hover:bg-gray-100">5</button>
+                <button onclick="calcKey('6')" class="p-3 bg-gray-50 text-gray-800 font-bold rounded-xl text-base hover:bg-gray-100">6</button>
+                <button onclick="calcKey('+')" class="p-3 bg-gray-100 text-puma-green font-bold rounded-xl text-sm hover:bg-gray-200">+</button>
+
+                <button onclick="calcKey('1')" class="p-3 bg-gray-50 text-gray-800 font-bold rounded-xl text-base hover:bg-gray-100">1</button>
+                <button onclick="calcKey('2')" class="p-3 bg-gray-50 text-gray-800 font-bold rounded-xl text-base hover:bg-gray-100">2</button>
+                <button onclick="calcKey('3')" class="p-3 bg-gray-50 text-gray-800 font-bold rounded-xl text-base hover:bg-gray-100">3</button>
+                <button onclick="calcKey('=')" class="row-span-2 p-3 bg-puma-green text-white font-bold rounded-xl text-lg hover:bg-puma-darkGreen flex items-center justify-center">=</button>
+
+                <button onclick="calcKey('0')" class="col-span-2 p-3 bg-gray-50 text-gray-800 font-bold rounded-xl text-base hover:bg-gray-100">0</button>
+                <button onclick="calcKey('.')" class="p-3 bg-gray-50 text-gray-800 font-bold rounded-xl text-base hover:bg-gray-100">.</button>
+            </div>
+
+            <button onclick="applyCalculatorResult()" class="w-full py-3 bg-puma-green text-white font-bold rounded-xl hover:bg-puma-darkGreen transition text-xs flex items-center justify-center space-x-1">
+                <i data-lucide="check" class="w-4 h-4"></i>
+                <span>Transferir monto a la casilla</span>
+            </button>
+        </div>
+    </div>
+
+
+    <!-- PRINT SHEET (PRINT-ONLY PDF FORMATTED TICKET) -->
+    <div id="print-sheet" class="print-only p-6 font-mono text-xs text-black max-w-xl mx-auto">
+        <div class="text-center border-b pb-4 mb-4">
+            <h1 class="text-xl font-bold uppercase tracking-wider">PUMA ENERGY</h1>
+            <p class="text-sm font-semibold">ControlPista - Reporte de Cierre de Turno</p>
+            <p class="text-xs text-gray-600 mt-1" id="p-datetime"></p>
+        </div>
+
+        <!-- General Data -->
+        <div class="grid grid-cols-2 gap-2 mb-4 border-b pb-3 text-xs">
+            <div><strong>Colaborador:</strong> <span id="p-pistero"></span></div>
+            <div><strong>Turno:</strong> <span id="p-turno"></span></div>
+        </div>
+
+        <!-- Pump Readings Table -->
+        <div class="mb-4">
+            <h2 class="font-bold border-b pb-1 mb-2 text-sm uppercase">LECTURAS DE BOMBAS</h2>
+            <table class="w-full text-left text-[11px] border-collapse">
+                <thead>
+                    <tr class="border-b">
+                        <th class="py-1">Bomba</th>
+                        <th class="py-1">Producto</th>
+                        <th class="py-1 text-right">Inicio</th>
+                        <th class="py-1 text-right">Fin</th>
+                        <th class="py-1 text-right">Litros</th>
+                        <th class="py-1 text-right">Total</th>
+                    </tr>
+                </thead>
+                <tbody id="p-pumps-body">
+                    <!-- Dynamic -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Sales Summary & Payments -->
+        <div class="grid grid-cols-2 gap-4 mb-4 border-t pt-3">
+            <div>
+                <h3 class="font-bold border-b pb-1 mb-2 uppercase">VENTAS POR PRODUCTO</h3>
+                <div id="p-product-summary" class="space-y-1"></div>
+            </div>
+            <div>
+                <h3 class="font-bold border-b pb-1 mb-2 uppercase">DEPÓSITOS EN BUZÓN</h3>
+                <div id="p-envelopes-summary" class="space-y-1"></div>
+            </div>
+        </div>
+
+        <!-- Other Payments -->
+        <div class="mb-4 border-t pt-3">
+            <h3 class="font-bold border-b pb-1 mb-2 uppercase">PAGOS ELECTRÓNICOS Y OTROS</h3>
+            <div id="p-payments-summary" class="grid grid-cols-2 gap-x-4 gap-y-1"></div>
+        </div>
+
+        <!-- Reconciliation Totals -->
+        <div class="border-t-2 border-b-2 border-black py-3 mb-6 space-y-1 text-sm font-bold">
+            <div class="flex justify-between">
+                <span>Venta total de combustible:</span>
+                <span id="p-total-fuel"></span>
+            </div>
+            <div class="flex justify-between">
+                <span>Total declarado:</span>
+                <span id="p-total-declared"></span>
+            </div>
+            <div class="flex justify-between text-base">
+                <span id="p-diff-label">DIFERENCIA:</span>
+                <span id="p-diff-amount"></span>
+            </div>
+        </div>
+
+        <!-- Shift Notes -->
+        <div class="mb-6">
+            <strong>Observaciones:</strong>
+            <p id="p-notes" class="italic text-gray-700 mt-1"></p>
+        </div>
+
+        <!-- Dual Signatures Area -->
+        <div class="grid grid-cols-2 gap-8 pt-8">
+            <div class="text-center">
+                <div class="h-20 border-b border-black mb-1 flex items-end justify-center">
+                    <img id="p-img-pistero" class="max-h-full max-w-full object-contain hidden" alt="Firma Pistero">
+                </div>
+                <div class="font-bold" id="p-sign-pistero-name">Firma Colaborador</div>
+                <div class="text-[10px] text-gray-600">Pistero Responsable</div>
+            </div>
+            <div class="text-center">
+                <div class="h-20 border-b border-black mb-1 flex items-end justify-center">
+                    <img id="p-img-supervisor" class="max-h-full max-w-full object-contain hidden" alt="Firma Supervisor">
+                </div>
+                <div class="font-bold">Firma Supervisor / Admin</div>
+                <div class="text-[10px] text-gray-600">Control & Cierre de Turno</div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- APP LOGIC & SCRIPT -->
+    <script>
+        // Global Application State
+        let currentStep = 1;
+        let pisteroName = '';
+        let selectedShift = 'Mañana';
+
+        let globalPrices = {
+            r91: 1.279,
+            s95: 1.421,
+            dsl: 1.516
+        };
+
+        // 12 Pumps default structure
+        let pumps = Array.from({ length: 12 }, (_, i) => ({
+            id: i + 1,
+            customPrices: false,
+            prices: { r91: 1.279, s95: 1.421, dsl: 1.516 },
+            r91: { start: '', end: '' },
+            s95: { start: '', end: '' },
+            dsl: { start: '', end: '' }
+        }));
+
+        let activePumpId = 1;
+
+        // Envelope Deposits List
+        let envelopes = [
+            { id: 1, number: '0001', amount: 0 }
+        ];
+
+        // Dynamic Payment Methods List
+        let paymentMethods = [
+            { id: 'visa', label: 'Visa', icon: 'credit-card', amount: 0 },
+            { id: 'mastercard', label: 'MasterCard', icon: 'credit-card', amount: 0 },
+            { id: 'clave', label: 'Clave', icon: 'credit-card', amount: 0 },
+            { id: 'puntos_pris', label: 'Puntos Pris', icon: 'star', amount: 0 },
+            { id: 'yappi_pris', label: 'Yappi Pris', icon: 'smartphone', amount: 0 },
+            { id: 'yappi_comercial', label: 'Yappi Comercial', icon: 'store', amount: 0 },
+            { id: 'pago_app', label: 'Pago App', icon: 'smartphone', amount: 0 },
+            { id: 'flota', label: 'Flota', icon: 'truck', amount: 0 },
+            { id: 'credito', label: 'Crédito', icon: 'file-text', amount: 0 },
+            { id: 'efectivo_caja', label: 'Efectivo en caja', icon: 'banknote', amount: 0 }
+        ];
+
+        // Calculator State
+        let activeCalcTarget = null; // { type: 'envelope'|'payment', id: string|number }
+        let calcCurrentExpr = '';
+
+        // Canvas Signature Pads
+        let padPistero = { canvas: null, ctx: null, drawing: false, hasData: false };
+        let padSupervisor = { canvas: null, ctx: null, drawing: false, hasData: false };
+
+
+        // INITIALIZATION
+        window.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+
+            // Select default shift
+            selectShift('Mañana');
+
+            // Render pump grid and active pump
+            renderPumpGrid();
+            loadActivePumpData();
+
+            // Render envelopes & payments
+            renderEnvelopes();
+            renderPaymentFields();
+
+            // Init Canvas signatures
+            initCanvasPads();
+
+            // Auto-resize listener for signatures
+            window.addEventListener('resize', resizeCanvasPads);
+        });
+
+        function updateDateTime() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            const str = now.toLocaleDateString('es-ES', options);
+            const formatted = str.charAt(0).toUpperCase() + str.slice(1);
+            document.getElementById('current-datetime').textContent = formatted;
+        }
+
+        // NAVIGATION STEP WIZARD
+        function goToStep(step) {
+            currentStep = step;
+            // Hide all steps
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById(`step-${i}`).classList.add('hidden');
+                const btn = document.getElementById(`step-btn-${i}`);
+                btn.className = "flex-1 text-center py-1 rounded-md transition flex items-center justify-center space-x-1";
+            }
+
+            // Show active step
+            document.getElementById(`step-${step}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`step-btn-${step}`);
+            activeBtn.className = "flex-1 text-center py-1 rounded-md transition flex items-center justify-center space-x-1 text-white font-bold bg-white/10";
+
+            // Footer navigation buttons state
+            const prevBtn = document.getElementById('prev-step-btn');
+            const nextBtnText = document.getElementById('next-step-text');
+
+            prevBtn.disabled = (step === 1);
+
+            if (step === 1) nextBtnText.textContent = "Ir a Bombas";
+            else if (step === 2) nextBtnText.textContent = "Ir a Pagos";
+            else if (step === 3) nextBtnText.textContent = "Ir a Cuadre";
+            else if (step === 4) nextBtnText.textContent = "Finalizar Cierre";
+
+            // Recalculate and update views
+            calculateAllTotals();
+
+            if (step === 4) {
+                // Resize signature canvas when entering step 4
+                setTimeout(resizeCanvasPads, 100);
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function nextStep() {
+            if (currentStep < 4) goToStep(currentStep + 1);
+            else generateAndPrintReport();
+        }
+
+        function prevStep() {
+            if (currentStep > 1) goToStep(currentStep - 1);
+        }
+
+        // STEP 1 HANDLERS
+        function selectShift(shift) {
+            selectedShift = shift;
+            ['manana', 'tarde', 'noche'].forEach(s => {
+                const btn = document.getElementById(`shift-${s}`);
+                if (s === shift.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")) {
+                    btn.classList.add('border-puma-green', 'bg-puma-lightGreen/40');
+                    btn.classList.remove('border-gray-200');
+                } else {
+                    btn.classList.remove('border-puma-green', 'bg-puma-lightGreen/40');
+                    btn.classList.add('border-gray-200');
+                }
+            });
+        }
+
+        function validateStep1() {
+            pisteroName = document.getElementById('pistero-name').value.trim();
+            const label = document.getElementById('signature-pistero-label');
+            if (label) label.textContent = pisteroName || 'Pistero responsable';
+        }
+
+        // STEP 2: PUMP LOGIC & PRICES
+        function updateGlobalPrices() {
+            globalPrices.r91 = parseFloat(document.getElementById('global-r91').value) || 0;
+            globalPrices.s95 = parseFloat(document.getElementById('global-s95').value) || 0;
+            globalPrices.dsl = parseFloat(document.getElementById('global-dsl').value) || 0;
+
+            // Sync with pumps that don't have custom prices
+            pumps.forEach(p => {
+                if (!p.customPrices) {
+                    p.prices.r91 = globalPrices.r91;
+                    p.prices.s95 = globalPrices.s95;
+                    p.prices.dsl = globalPrices.dsl;
+                }
+            });
+
+            loadActivePumpData();
+            calculateAllTotals();
+        }
+
+        function renderPumpGrid() {
+            const container = document.getElementById('pump-grid');
+            container.innerHTML = '';
+
+            let completedCount = 0;
+
+            pumps.forEach(p => {
+                // Calculate completion state
+                const rComplete = (p.r91.start !== '' && p.r91.end !== '');
+                const sComplete = (p.s95.start !== '' && p.s95.end !== '');
+                const dComplete = (p.dsl.start !== '' && p.dsl.end !== '');
+
+                let badgeColor = 'bg-gray-300';
+                if (rComplete && sComplete && dComplete) {
+                    badgeColor = 'bg-emerald-500';
+                    completedCount++;
+                } else if (rComplete || sComplete || dComplete) {
+                    badgeColor = 'bg-amber-500';
+                }
+
+                const isActive = (p.id === activePumpId);
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.onclick = () => selectActivePump(p.id);
+                btn.className = `p-2 rounded-xl text-center border-2 transition relative flex flex-col items-center justify-center ${
+                    isActive ? 'border-puma-dark bg-puma-dark text-white font-black' : 'border-gray-200 bg-gray-50 text-gray-800 hover:border-gray-300'
+                }`;
+
+                btn.innerHTML = `
+                    <span class="text-base font-bold">${p.id}</span>
+                    <span class="w-2 h-2 rounded-full ${badgeColor} mt-1"></span>
+                    ${p.customPrices ? '<span class="absolute top-1 right-1 w-1.5 h-1.5 bg-amber-500 rounded-full" title="Precio Especial"></span>' : ''}
+                `;
+                container.appendChild(btn);
+            });
+
+            document.getElementById('pumps-progress').textContent = `${completedCount} de 12 bombas completas`;
+        }
+
+        function selectActivePump(id) {
+            saveActivePumpData();
+            activePumpId = id;
+            renderPumpGrid();
+            loadActivePumpData();
+        }
+
+        function navigatePump(delta) {
+            let nextId = activePumpId + delta;
+            if (nextId < 1) nextId = 12;
+            if (nextId > 12) nextId = 1;
+            selectActivePump(nextId);
+        }
+
+        function togglePumpPriceOverride() {
+            const pump = pumps.find(p => p.id === activePumpId);
+            pump.customPrices = !pump.customPrices;
+
+            if (!pump.customPrices) {
+                // Reset to global
+                pump.prices.r91 = globalPrices.r91;
+                pump.prices.s95 = globalPrices.s95;
+                pump.prices.dsl = globalPrices.dsl;
+            }
+
+            loadActivePumpData();
+            renderPumpGrid();
+            calculateAllTotals();
+        }
+
+        function updatePumpCustomPrices() {
+            const pump = pumps.find(p => p.id === activePumpId);
+            if (pump && pump.customPrices) {
+                pump.prices.r91 = parseFloat(document.getElementById('custom-r91').value) || 0;
+                pump.prices.s95 = parseFloat(document.getElementById('custom-s95').value) || 0;
+                pump.prices.dsl = parseFloat(document.getElementById('custom-dsl').value) || 0;
+                calculateActivePump();
+            }
+        }
+
+        function saveActivePumpData() {
+            const p = pumps.find(p => p.id === activePumpId);
+            if (!p) return;
+
+            p.r91.start = document.getElementById('h-r91-start').value;
+            p.r91.end = document.getElementById('h-r91-end').value;
+
+            p.s95.start = document.getElementById('h-s95-start').value;
+            p.s95.end = document.getElementById('h-s95-end').value;
+
+            p.dsl.start = document.getElementById('h-dsl-start').value;
+            p.dsl.end = document.getElementById('h-dsl-end').value;
+        }
+
+        function loadActivePumpData() {
+            const p = pumps.find(p => p.id === activePumpId);
+            if (!p) return;
+
+            document.getElementById('active-pump-num').textContent = p.id;
+            document.getElementById('active-pump-title').textContent = `Bomba ${p.id}`;
+
+            // Handle custom price UI
+            const customPanel = document.getElementById('pump-custom-prices');
+            const overrideLabel = document.getElementById('override-price-label');
+
+            if (p.customPrices) {
+                customPanel.classList.remove('hidden');
+                overrideLabel.textContent = "Usando Especial";
+                document.getElementById('custom-pump-id').textContent = p.id;
+                document.getElementById('custom-r91').value = p.prices.r91;
+                document.getElementById('custom-s95').value = p.prices.s95;
+                document.getElementById('custom-dsl').value = p.prices.dsl;
+            } else {
+                customPanel.classList.add('hidden');
+                overrideLabel.textContent = "Precio Especial";
+            }
+
+            // Display current hose price
+            document.getElementById('r91-hose-price').textContent = `B/. ${p.prices.r91.toFixed(3)} / L`;
+            document.getElementById('s95-hose-price').textContent = `B/. ${p.prices.s95.toFixed(3)} / L`;
+            document.getElementById('dsl-hose-price').textContent = `B/. ${p.prices.dsl.toFixed(3)} / L`;
+
+            // Load Inputs
+            document.getElementById('h-r91-start').value = p.r91.start;
+            document.getElementById('h-r91-end').value = p.r91.end;
+
+            document.getElementById('h-s95-start').value = p.s95.start;
+            document.getElementById('h-s95-end').value = p.s95.end;
+
+            document.getElementById('h-dsl-start').value = p.dsl.start;
+            document.getElementById('h-dsl-end').value = p.dsl.end;
+
+            calculateActivePump();
+        }
+
+        function calculateActivePump() {
+            saveActivePumpData();
+            const p = pumps.find(p => p.id === activePumpId);
+
+            // R91
+            const rStart = parseFloat(p.r91.start) || 0;
+            const rEnd = parseFloat(p.r91.end) || 0;
+            const rLiters = (rEnd >= rStart && p.r91.end !== '') ? (rEnd - rStart) : 0;
+            const rMoney = rLiters * p.prices.r91;
+
+            document.getElementById('h-r91-liters').textContent = `${rLiters.toFixed(2)} L`;
+            document.getElementById('h-r91-total').textContent = `B/. ${rMoney.toFixed(2)}`;
+
+            // S95
+            const sStart = parseFloat(p.s95.start) || 0;
+            const sEnd = parseFloat(p.s95.end) || 0;
+            const sLiters = (sEnd >= sStart && p.s95.end !== '') ? (sEnd - sStart) : 0;
+            const sMoney = sLiters * p.prices.s95;
+
+            document.getElementById('h-s95-liters').textContent = `${sLiters.toFixed(2)} L`;
+            document.getElementById('h-s95-total').textContent = `B/. ${sMoney.toFixed(2)}`;
+
+            // DSL
+            const dStart = parseFloat(p.dsl.start) || 0;
+            const dEnd = parseFloat(p.dsl.end) || 0;
+            const dLiters = (dEnd >= dStart && p.dsl.end !== '') ? (dEnd - dStart) : 0;
+            const dMoney = dLiters * p.prices.dsl;
+
+            document.getElementById('h-dsl-liters').textContent = `${dLiters.toFixed(2)} L`;
+            document.getElementById('h-dsl-total').textContent = `B/. ${dMoney.toFixed(2)}`;
+
+            const pumpTotalLiters = rLiters + sLiters + dLiters;
+            const pumpTotalMoney = rMoney + sMoney + dMoney;
+
+            document.getElementById('active-pump-sub').textContent = `${pumpTotalLiters.toFixed(2)} L · B/. ${pumpTotalMoney.toFixed(2)}`;
+
+            renderPumpGrid();
+            calculateAllTotals();
+        }
+
+
+        // STEP 3: ENVELOPES & PAYMENTS MANAGEMENT
+        function renderEnvelopes() {
+            const container = document.getElementById('envelopes-list');
+            container.innerHTML = '';
+
+            envelopes.forEach((env, idx) => {
+                const row = document.createElement('div');
+                row.className = "flex items-center space-x-2 bg-gray-50 p-2 rounded-xl border border-gray-200";
+                row.innerHTML = `
+                    <span class="w-6 text-center font-bold text-puma-green text-xs">#${idx + 1}</span>
+                    <input type="text" value="${env.number}" onchange="updateEnvelopeNumber(${env.id}, this.value)" placeholder="N.° SOBRE" class="w-24 p-2 bg-white border border-gray-200 rounded-lg text-xs font-semibold uppercase">
+                    <div class="relative flex-1">
+                        <span class="absolute left-2.5 top-2 text-xs font-bold text-gray-500">B/.</span>
+                        <input type="number" step="0.01" value="${env.amount || ''}" oninput="updateEnvelopeAmount(${env.id}, this.value)" placeholder="0.00" class="w-full pl-8 pr-2 py-1.5 text-sm font-bold bg-white border border-gray-200 rounded-lg text-right focus:outline-none focus:ring-2 focus:ring-puma-green">
+                    </div>
+                    <button onclick="openCalculator('envelope', ${env.id})" class="p-2 bg-puma-lightGreen text-puma-green rounded-lg hover:bg-green-200" title="Calculadora para sumar comprobantes">
+                        <i data-lucide="calculator" class="w-4 h-4"></i>
+                    </button>
+                    ${envelopes.length > 1 ? `
+                        <button onclick="removeEnvelope(${env.id})" class="p-2 text-gray-400 hover:text-puma-red">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    ` : ''}
+                `;
+                container.appendChild(row);
+            });
+
+            document.getElementById('envelopes-count').textContent = envelopes.length;
+            lucide.createIcons();
+            calculateAllTotals();
+        }
+
+        function addEnvelope() {
+            const newId = Date.now();
+            const nextNum = (envelopes.length + 1).toString().padStart(4, '0');
+            envelopes.push({ id: newId, number: nextNum, amount: 0 });
+            renderEnvelopes();
+        }
+
+        function removeEnvelope(id) {
+            envelopes = envelopes.filter(e => e.id !== id);
+            renderEnvelopes();
+        }
+
+        function updateEnvelopeNumber(id, val) {
+            const env = envelopes.find(e => e.id === id);
+            if (env) env.number = val;
+        }
+
+        function updateEnvelopeAmount(id, val) {
+            const env = envelopes.find(e => e.id === id);
+            if (env) env.amount = parseFloat(val) || 0;
+            calculateAllTotals();
+        }
+
+        // DYNAMIC PAYMENT FIELDS
+        function renderPaymentFields() {
+            const container = document.getElementById('payments-list');
+            container.innerHTML = '';
+
+            paymentMethods.forEach((pm) => {
+                const row = document.createElement('div');
+                row.className = "flex items-center justify-between p-2.5 bg-gray-50 border border-gray-200 rounded-xl space-x-2";
+                row.innerHTML = `
+                    <div class="flex items-center space-x-2 flex-1 min-w-0">
+                        <div class="p-1.5 bg-white border border-gray-200 rounded-lg text-puma-green">
+                            <i data-lucide="${pm.icon || 'credit-card'}" class="w-4 h-4"></i>
+                        </div>
+                        <input type="text" value="${pm.label}" onchange="renamePaymentField('${pm.id}', this.value)" class="font-semibold text-xs text-gray-800 bg-transparent border-b border-transparent hover:border-gray-300 focus:border-puma-green focus:bg-white focus:outline-none px-1 py-0.5 rounded w-full truncate">
+                    </div>
+
+                    <div class="flex items-center space-x-1">
+                        <div class="relative w-32">
+                            <span class="absolute left-2.5 top-1.5 text-xs font-bold text-gray-400">B/.</span>
+                            <input type="number" step="0.01" value="${pm.amount || ''}" oninput="updatePaymentAmount('${pm.id}', this.value)" placeholder="0.00" class="w-full pl-8 pr-2 py-1.5 text-sm font-bold bg-white border border-gray-200 rounded-lg text-right focus:outline-none focus:ring-2 focus:ring-puma-green">
+                        </div>
+                        <button onclick="openCalculator('payment', '${pm.id}')" class="p-2 bg-puma-lightGreen text-puma-green rounded-lg hover:bg-green-200" title="Calculadora para comprobantes">
+                            <i data-lucide="calculator" class="w-4 h-4"></i>
+                        </button>
+                        <button onclick="deletePaymentField('${pm.id}')" class="p-1.5 text-gray-300 hover:text-puma-red rounded" title="Eliminar campo">
+                            <i data-lucide="x" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+
+            lucide.createIcons();
+            calculateAllTotals();
+        }
+
+        function addNewPaymentFieldPrompt() {
+            const name = prompt("Ingrese el nombre del nuevo método de pago (ej. Vale Panamá, Tarjeta Clave 2, etc.):");
+            if (name && name.trim() !== '') {
+                const newId = 'custom_' + Date.now();
+                paymentMethods.push({
+                    id: newId,
+                    label: name.trim(),
+                    icon: 'wallet',
+                    amount: 0
+                });
+                renderPaymentFields();
+            }
+        }
+
+        function renamePaymentField(id, newName) {
+            const pm = paymentMethods.find(p => p.id === id);
+            if (pm && newName.trim() !== '') {
+                pm.label = newName.trim();
+            }
+        }
+
+        function updatePaymentAmount(id, val) {
+            const pm = paymentMethods.find(p => p.id === id);
+            if (pm) pm.amount = parseFloat(val) || 0;
+            calculateAllTotals();
+        }
+
+        function deletePaymentField(id) {
+            if (confirm("¿Desea eliminar este método de pago?")) {
+                paymentMethods = paymentMethods.filter(p => p.id !== id);
+                renderPaymentFields();
+            }
+        }
+
+
+        // CALCULATOR POPUP MODAL
+        function openCalculator(type, id) {
+            activeCalcTarget = { type, id };
+            calcCurrentExpr = '';
+
+            let title = '';
+            if (type === 'envelope') {
+                const env = envelopes.find(e => e.id === id);
+                title = `Suma comprobantes para Sobre N.° ${env ? env.number : ''}`;
+            } else {
+                const pm = paymentMethods.find(p => p.id === id);
+                title = `Suma de comprobantes: ${pm ? pm.label : ''}`;
+            }
+
+            document.getElementById('calc-field-title').textContent = title;
+            document.getElementById('calc-expression').textContent = '';
+            document.getElementById('calc-display').textContent = '0';
+
+            document.getElementById('calc-modal').classList.remove('hidden');
+        }
+
+        function closeCalculator() {
+            document.getElementById('calc-modal').classList.add('hidden');
+            activeCalcTarget = null;
+        }
+
+        function calcKey(key) {
+            const display = document.getElementById('calc-display');
+            const expr = document.getElementById('calc-expression');
+
+            if (key === 'C') {
+                calcCurrentExpr = '';
+                display.textContent = '0';
+                expr.textContent = '';
+                return;
+            }
+
+            if (key === 'BACK') {
+                calcCurrentExpr = calcCurrentExpr.slice(0, -1);
+                display.textContent = calcCurrentExpr || '0';
+                return;
+            }
+
+            if (key === '=') {
+                try {
+                    if (!calcCurrentExpr) return;
+                    // Safe evaluation of mathematical expression
+                    const sanitized = calcCurrentExpr.replace(/[^0-9+\-*/.]/g, '');
+                    const result = eval(sanitized);
+                    expr.textContent = calcCurrentExpr + ' =';
+                    calcCurrentExpr = String(Math.round(result * 100) / 100);
+                    display.textContent = calcCurrentExpr;
+                } catch (e) {
+                    display.textContent = 'Error';
+                }
+                return;
+            }
+
+            calcCurrentExpr += key;
+            display.textContent = calcCurrentExpr;
+        }
+
+        function applyCalculatorResult() {
+            if (!activeCalcTarget) return;
+
+            const val = parseFloat(document.getElementById('calc-display').textContent) || 0;
+
+            if (activeCalcTarget.type === 'envelope') {
+                updateEnvelopeAmount(activeCalcTarget.id, val);
+                renderEnvelopes();
+            } else if (activeCalcTarget.type === 'payment') {
+                updatePaymentAmount(activeCalcTarget.id, val);
+                renderPaymentFields();
+            }
+
+            closeCalculator();
+        }
+
+
+        // TOTALS & RECONCILIATION CALCULATIONS
+        function calculateAllTotals() {
+            // Fuel Totals
+            let totalR91Liters = 0, totalR91Money = 0;
+            let totalS95Liters = 0, totalS95Money = 0;
+            let totalDslLiters = 0, totalDslMoney = 0;
+
+            pumps.forEach(p => {
+                // R91
+                const rStart = parseFloat(p.r91.start) || 0;
+                const rEnd = parseFloat(p.r91.end) || 0;
+                if (rEnd >= rStart && p.r91.end !== '') {
+                    const l = rEnd - rStart;
+                    totalR91Liters += l;
+                    totalR91Money += l * p.prices.r91;
+                }
+                // S95
+                const sStart = parseFloat(p.s95.start) || 0;
+                const sEnd = parseFloat(p.s95.end) || 0;
+                if (sEnd >= sStart && p.s95.end !== '') {
+                    const l = sEnd - sStart;
+                    totalS95Liters += l;
+                    totalS95Money += l * p.prices.s95;
+                }
+                // DSL
+                const dStart = parseFloat(p.dsl.start) || 0;
+                const dEnd = parseFloat(p.dsl.end) || 0;
+                if (dEnd >= dStart && p.dsl.end !== '') {
+                    const l = dEnd - dStart;
+                    totalDslLiters += l;
+                    totalDslMoney += l * p.prices.dsl;
+                }
+            });
+
+            const grandTotalFuelLiters = totalR91Liters + totalS95Liters + totalDslLiters;
+            const grandTotalFuelMoney = totalR91Money + totalS95Money + totalDslMoney;
+
+            // Summary UI
+            document.getElementById('summary-r91-liters').textContent = `${totalR91Liters.toFixed(2)} L`;
+            document.getElementById('summary-r91-money').textContent = `B/. ${totalR91Money.toFixed(2)}`;
+
+            document.getElementById('summary-s95-liters').textContent = `${totalS95Liters.toFixed(2)} L`;
+            document.getElementById('summary-s95-money').textContent = `B/. ${totalS95Money.toFixed(2)}`;
+
+            document.getElementById('summary-dsl-liters').textContent = `${totalDslLiters.toFixed(2)} L`;
+            document.getElementById('summary-dsl-money').textContent = `B/. ${totalDslMoney.toFixed(2)}`;
+
+            document.getElementById('summary-total-liters').textContent = `${grandTotalFuelLiters.toFixed(2)} L acumulados`;
+            document.getElementById('summary-total-money').textContent = `B/. ${grandTotalFuelMoney.toFixed(2)}`;
+
+            // Envelopes total
+            const totalEnvelopes = envelopes.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+            document.getElementById('envelopes-total').textContent = `B/. ${totalEnvelopes.toFixed(2)}`;
+
+            // Payments total
+            const totalPayments = paymentMethods.reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
+            document.getElementById('payments-total').textContent = `B/. ${totalPayments.toFixed(2)}`;
+
+            // Declared total
+            const totalDeclared = totalEnvelopes + totalPayments;
+            document.getElementById('declared-total').textContent = `B/. ${totalDeclared.toFixed(2)}`;
+            document.getElementById('expected-sale-badge').textContent = `B/. ${grandTotalFuelMoney.toFixed(2)}`;
+
+            // Footer total
+            document.getElementById('footer-total-money').textContent = `B/. ${grandTotalFuelMoney.toFixed(2)}`;
+
+            // Reconciliation Step 4 Details
+            document.getElementById('reconcil-r91-liters').textContent = `${totalR91Liters.toFixed(2)} L`;
+            document.getElementById('reconcil-r91-money').textContent = `B/. ${totalR91Money.toFixed(2)}`;
+
+            document.getElementById('reconcil-s95-liters').textContent = `${totalS95Liters.toFixed(2)} L`;
+            document.getElementById('reconcil-s95-money').textContent = `B/. ${totalS95Money.toFixed(2)}`;
+
+            document.getElementById('reconcil-dsl-liters').textContent = `${totalDslLiters.toFixed(2)} L`;
+            document.getElementById('reconcil-dsl-money').textContent = `B/. ${totalDslMoney.toFixed(2)}`;
+
+            document.getElementById('reconcil-total-fuel').textContent = `B/. ${grandTotalFuelMoney.toFixed(2)}`;
+            document.getElementById('reconcil-envelopes').textContent = `B/. ${totalEnvelopes.toFixed(2)}`;
+            document.getElementById('reconcil-payments').textContent = `B/. ${totalPayments.toFixed(2)}`;
+            document.getElementById('reconcil-declared').textContent = `B/. ${totalDeclared.toFixed(2)}`;
+
+            // Difference calculation
+            const diff = totalDeclared - grandTotalFuelMoney;
+            const diffAbs = Math.abs(diff);
+
+            const statusCard = document.getElementById('cuadre-status-card');
+            const statusTitle = document.getElementById('cuadre-title');
+            const statusSub = document.getElementById('cuadre-sub');
+            const statusDiff = document.getElementById('cuadre-diff-display');
+            const reconcilDiff = document.getElementById('reconcil-diff');
+
+            if (Math.abs(diff) < 0.01) {
+                statusCard.className = "bg-puma-green text-white p-5 rounded-2xl shadow-sm";
+                statusTitle.textContent = "Cuadre Perfecto";
+                statusSub.textContent = "El total declarado coincide exactamente con la venta registrada.";
+                statusDiff.textContent = "B/. 0.00";
+                reconcilDiff.textContent = "B/. 0.00";
+                reconcilDiff.className = "text-puma-green";
+            } else if (diff > 0) {
+                statusCard.className = "bg-blue-600 text-white p-5 rounded-2xl shadow-sm";
+                statusTitle.textContent = "Sobrante de Caja";
+                statusSub.textContent = "El monto declarado es mayor a la venta calculada de mangueras.";
+                statusDiff.textContent = `+ B/. ${diffAbs.toFixed(2)}`;
+                reconcilDiff.textContent = `+ B/. ${diffAbs.toFixed(2)} (Sobrante)`;
+                reconcilDiff.className = "text-blue-600";
+            } else {
+                statusCard.className = "bg-puma-red text-white p-5 rounded-2xl shadow-sm";
+                statusTitle.textContent = "Faltante de Caja";
+                statusSub.textContent = "El monto declarado es menor a la venta calculada de mangueras.";
+                statusDiff.textContent = `- B/. ${diffAbs.toFixed(2)}`;
+                reconcilDiff.textContent = `- B/. ${diffAbs.toFixed(2)} (Faltante)`;
+                reconcilDiff.className = "text-puma-red";
+            }
+        }
+
+
+        // DUAL CANVAS SIGNATURE PADS
+        function initCanvasPads() {
+            padPistero.canvas = document.getElementById('canvas-pistero');
+            padPistero.ctx = padPistero.canvas.getContext('2d');
+            setupCanvasEvents(padPistero, 'pistero');
+
+            padSupervisor.canvas = document.getElementById('canvas-supervisor');
+            padSupervisor.ctx = padSupervisor.canvas.getContext('2d');
+            setupCanvasEvents(padSupervisor, 'supervisor');
+        }
+
+        function resizeCanvasPads() {
+            [padPistero, padSupervisor].forEach(pad => {
+                if (pad.canvas && pad.canvas.parentElement) {
+                    const rect = pad.canvas.parentElement.getBoundingClientRect();
+                    pad.canvas.width = rect.width;
+                    pad.canvas.height = rect.height || 144;
+                    pad.ctx.lineWidth = 2.5;
+                    pad.ctx.lineCap = 'round';
+                    pad.ctx.strokeStyle = '#111827';
+                }
+            });
+        }
+
+        function setupCanvasEvents(pad, key) {
+            const canvas = pad.canvas;
+
+            function getPos(e) {
+                const rect = canvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return {
+                    x: clientX - rect.left,
+                    y: clientY - rect.top
+                };
+            }
+
+            function startDraw(e) {
+                e.preventDefault();
+                pad.drawing = true;
+                pad.hasData = true;
+                document.getElementById(`hint-${key}`).classList.add('hidden');
+                document.getElementById(`status-${key}`).textContent = "Firma registrada";
+                document.getElementById(`status-${key}`).className = "text-puma-green font-bold text-[11px]";
+
+                const pos = getPos(e);
+                pad.ctx.beginPath();
+                pad.ctx.moveTo(pos.x, pos.y);
+            }
+
+            function moveDraw(e) {
+                if (!pad.drawing) return;
+                e.preventDefault();
+                const pos = getPos(e);
+                pad.ctx.lineTo(pos.x, pos.y);
+                pad.ctx.stroke();
+            }
+
+            function stopDraw() {
+                pad.drawing = false;
+            }
+
+            canvas.addEventListener('mousedown', startDraw);
+            canvas.addEventListener('mousemove', moveDraw);
+            canvas.addEventListener('mouseup', stopDraw);
+            canvas.addEventListener('mouseleave', stopDraw);
+
+            canvas.addEventListener('touchstart', startDraw, { passive: false });
+            canvas.addEventListener('touchmove', moveDraw, { passive: false });
+            canvas.addEventListener('touchend', stopDraw);
+        }
+
+        function clearSignature(key) {
+            const pad = (key === 'pistero') ? padPistero : padSupervisor;
+            pad.ctx.clearRect(0, 0, pad.canvas.width, pad.canvas.height);
+            pad.hasData = false;
+
+            document.getElementById(`hint-${key}`).classList.remove('hidden');
+            document.getElementById(`status-${key}`).textContent = "Firma pendiente";
+            document.getElementById(`status-${key}`).className = "text-gray-400 text-[11px]";
+        }
+
+
+        // REPORT GENERATION & PRINT
+        function generateAndPrintReport() {
+            if (!pisteroName) {
+                alert("Por favor ingrese el nombre del pistero en la pantalla de Inicio antes de imprimir.");
+                goToStep(1);
+                return;
+            }
+
+            // Populate Print Template
+            document.getElementById('p-datetime').textContent = document.getElementById('current-datetime').textContent;
+            document.getElementById('p-pistero').textContent = pisteroName;
+            document.getElementById('p-turno').textContent = selectedShift;
+
+            // Pump readings table
+            const tbody = document.getElementById('p-pumps-body');
+            tbody.innerHTML = '';
+
+            let grandLiters = 0, grandMoney = 0;
+            let totalR91L = 0, totalR91M = 0;
+            let totalS95L = 0, totalS95M = 0;
+            let totalDslL = 0, totalDslM = 0;
+
+            pumps.forEach(p => {
+                const rStart = parseFloat(p.r91.start) || 0;
+                const rEnd = parseFloat(p.r91.end) || 0;
+                const rL = (rEnd >= rStart && p.r91.end !== '') ? (rEnd - rStart) : 0;
+                const rM = rL * p.prices.r91;
+
+                const sStart = parseFloat(p.s95.start) || 0;
+                const sEnd = parseFloat(p.s95.end) || 0;
+                const sL = (sEnd >= sStart && p.s95.end !== '') ? (sEnd - sStart) : 0;
+                const sM = sL * p.prices.s95;
+
+                const dStart = parseFloat(p.dsl.start) || 0;
+                const dEnd = parseFloat(p.dsl.end) || 0;
+                const dL = (dEnd >= dStart && p.dsl.end !== '') ? (dEnd - dStart) : 0;
+                const dM = dL * p.prices.dsl;
+
+                totalR91L += rL; totalR91M += rM;
+                totalS95L += sL; totalS95M += sM;
+                totalDslL += dL; totalDslM += dM;
+
+                if (rL > 0 || sL > 0 || dL > 0) {
+                    tbody.innerHTML += `
+                        <tr class="border-b border-gray-200">
+                            <td class="py-1 font-bold" rowspan="3">Bomba ${p.id} ${p.customPrices ? '*' : ''}</td>
+                            <td>Regular 91</td>
+                            <td class="text-right">${p.r91.start || '-'}</td>
+                            <td class="text-right">${p.r91.end || '-'}</td>
+                            <td class="text-right">${rL.toFixed(2)} L</td>
+                            <td class="text-right">B/. ${rM.toFixed(2)}</td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td>Súper 95</td>
+                            <td class="text-right">${p.s95.start || '-'}</td>
+                            <td class="text-right">${p.s95.end || '-'}</td>
+                            <td class="text-right">${sL.toFixed(2)} L</td>
+                            <td class="text-right">B/. ${sM.toFixed(2)}</td>
+                        </tr>
+                        <tr class="border-b border-gray-300">
+                            <td>Diesel</td>
+                            <td class="text-right">${p.dsl.start || '-'}</td>
+                            <td class="text-right">${p.dsl.end || '-'}</td>
+                            <td class="text-right">${dL.toFixed(2)} L</td>
+                            <td class="text-right">B/. ${dM.toFixed(2)}</td>
+                        </tr>
+                    `;
+                }
+            });
+
+            grandLiters = totalR91L + totalS95L + totalDslL;
+            grandMoney = totalR91M + totalS95M + totalDslM;
+
+            // Product Summary
+            document.getElementById('p-product-summary').innerHTML = `
+                <div class="flex justify-between"><span>Regular 91 (${globalPrices.r91.toFixed(3)}/L):</span> <span>${totalR91L.toFixed(2)} L · B/. ${totalR91M.toFixed(2)}</span></div>
+                <div class="flex justify-between"><span>Súper 95 (${globalPrices.s95.toFixed(3)}/L):</span> <span>${totalS95L.toFixed(2)} L · B/. ${totalS95M.toFixed(2)}</span></div>
+                <div class="flex justify-between"><span>Diesel (${globalPrices.dsl.toFixed(3)}/L):</span> <span>${totalDslL.toFixed(2)} L · B/. ${totalDslM.toFixed(2)}</span></div>
+                <div class="flex justify-between font-bold border-t pt-1"><span>Total Combustible:</span> <span>${grandLiters.toFixed(2)} L · B/. ${grandMoney.toFixed(2)}</span></div>
+            `;
+
+            // Envelopes Summary
+            let envSummaryHtml = '';
+            let totalEnv = 0;
+            envelopes.forEach(e => {
+                const amt = parseFloat(e.amount) || 0;
+                totalEnv += amt;
+                envSummaryHtml += `<div class="flex justify-between"><span>Sobre ${e.number}:</span> <span>B/. ${amt.toFixed(2)}</span></div>`;
+            });
+            envSummaryHtml += `<div class="flex justify-between font-bold border-t pt-1"><span>Total buzón:</span> <span>B/. ${totalEnv.toFixed(2)}</span></div>`;
+            document.getElementById('p-envelopes-summary').innerHTML = envSummaryHtml;
+
+            // Payments Summary
+            let paySummaryHtml = '';
+            let totalPay = 0;
+            paymentMethods.forEach(p => {
+                const amt = parseFloat(p.amount) || 0;
+                totalPay += amt;
+                paySummaryHtml += `<div class="flex justify-between"><span>${p.label}:</span> <span>B/. ${amt.toFixed(2)}</span></div>`;
+            });
+            document.getElementById('p-payments-summary').innerHTML = paySummaryHtml + `<div class="col-span-2 flex justify-between font-bold border-t pt-1"><span>Total electrónicos y otros:</span> <span>B/. ${totalPay.toFixed(2)}</span></div>`;
+
+            // Final Totals
+            const totalDeclared = totalEnv + totalPay;
+            const diff = totalDeclared - grandMoney;
+
+            document.getElementById('p-total-fuel').textContent = `B/. ${grandMoney.toFixed(2)}`;
+            document.getElementById('p-total-declared').textContent = `B/. ${totalDeclared.toFixed(2)}`;
+
+            if (Math.abs(diff) < 0.01) {
+                document.getElementById('p-diff-label').textContent = "CUADRE:";
+                document.getElementById('p-diff-amount').textContent = "B/. 0.00";
+            } else if (diff > 0) {
+                document.getElementById('p-diff-label').textContent = "SOBRANTE:";
+                document.getElementById('p-diff-amount').textContent = `+ B/. ${Math.abs(diff).toFixed(2)}`;
+            } else {
+                document.getElementById('p-diff-label').textContent = "FALTANTE:";
+                document.getElementById('p-diff-amount').textContent = `- B/. ${Math.abs(diff).toFixed(2)}`;
+            }
+
+            document.getElementById('p-notes').textContent = document.getElementById('shift-notes').value || 'Sin observaciones.';
+
+            // Attach canvas images
+            const imgPistero = document.getElementById('p-img-pistero');
+            if (padPistero.hasData) {
+                imgPistero.src = padPistero.canvas.toDataURL();
+                imgPistero.classList.remove('hidden');
+            } else {
+                imgPistero.classList.add('hidden');
+            }
+
+            const imgSupervisor = document.getElementById('p-img-supervisor');
+            if (padSupervisor.hasData) {
+                imgSupervisor.src = padSupervisor.canvas.toDataURL();
+                imgSupervisor.classList.remove('hidden');
+            } else {
+                imgSupervisor.classList.add('hidden');
+            }
+
+            document.getElementById('p-sign-pistero-name').textContent = pisteroName || 'Firma Colaborador';
+
+            // Trigger Print Dialog
+            window.print();
+        }
+
+        function resetShiftData() {
+            if (confirm("¿Está seguro de reiniciar todos los datos del turno actual?")) {
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>
+```
