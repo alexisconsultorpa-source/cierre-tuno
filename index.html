@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title> Pista - Puma Energy | Cierre de Turno Digital</title>
-    <!-- Favicon con el logo de Calculadora/Cuadre -->
+    <!-- Favicon estándar y para accesos directos / pantallas de inicio -->
     <link rel="icon" type="image/jpeg" href="Logocuadre.jpg">
+    <link rel="apple-touch-icon" href="Logocuadre.jpg">
+    <link rel="shortcut icon" type="image/jpeg" href="Logocuadre.jpg">
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
@@ -1697,7 +1699,7 @@
             const imgSupervisor = document.getElementById('p-img-supervisor');
             if (padSupervisor.hasData) {
                 imgSupervisor.src = padSupervisor.canvas.toDataURL();
-                imgSupervisor.classList.remove('hidden');
+                imgSupervisor.classList.add('hidden');
             } else {
                 imgSupervisor.classList.add('hidden');
             }
